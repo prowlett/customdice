@@ -1,0 +1,806 @@
+%\iffalse meta-comment
+%Copyright (c) 2022 Peter Rowlett
+%
+%The package is licenced under Creative Commons Attribution-ShareAlike 4.0 International (CC BY-SA 4.0). To view a copy of this license, visit http://creativecommons.org/licenses/by-sa/4.0/
+%\fi
+%\title{customdice v1.0}
+%\author{Peter Rowlett}
+%\maketitle
+%    
+%\centerline{\Huge\layoutdice{\dice{1}}{\dice{2}}{\dice{3}}{\dice{4}}{\dice{5}}{\dice{6}}
+%    \layoutdice{\dice[black,white]{1}}{\dice[black,white]{2}}{\dice[black,white]{3}}{\dice[black,white]{4}}{\dice[black,white]{5}}{\dice[black,white]{6}}
+%    \layoutdice{\dice[violet,white]{1}}{\dice[violet,white]{2}}{\dice[violet,white]{3}}{\dice[violet,white]{4}}{\dice[violet,white]{5}}{\dice[violet,white]{6}}
+%    \layoutdice{\bigdotdice[white,red]}{\bigdotdice[white,orange]}{\bigdotdice[white,yellow]}{\bigdotdice[white,green]}{\bigdotdice[white,blue]}{\bigdotdice[white,violet]}
+%    \layoutdice{\textdice[yellow,black]{1}}{\textdice[yellow,black]{\rotatebox{180}{2}}}{\textdice[yellow,black]{\rotatebox{90}{3}}}{\textdice[yellow,black]{4}}{\textdice[yellow,black]{5}}{\rotatebox{180}{\textdicebot[yellow,black]{6}}}
+%    \layoutdice{\textdice[white,blue]{\(\aleph\)}}{\rotatebox{90}{\textdicebot[white,blue]{8}}}{\textdice[white,blue]{\(\xi\)}}{\textdicebot[white,blue]{\(\infty\)}}{\rotatebox{-90}{\textdice[white,blue]{\(\mathbb{R}\)}}}{\textdicebot[white,blue]{\(\forall\)}}}\bigskip
+%
+%\verb|customdice| is a package for \LaTeX\, Lua\LaTeX\ and Xe\TeX\ that provides functionality for drawing dice. The aim is to provide highly-customisable but simple-to-use commands, allowing: \begin{itemize}
+%    \item adding custom text to dice faces;
+%    \item control over colouring;
+%    \item control over sizing.
+%\end{itemize}
+%
+%The package is licenced under Creative Commons Attribution-ShareAlike 4.0 International (CC BY-SA 4.0). To view a copy of this license, visit \url{http://creativecommons.org/licenses/by-sa/4.0/}
+%
+%\tableofcontents
+%
+%
+%\section{Motivation}
+%
+%I've long struggled to find a dice package I fully like. I have been using epsdice, but it only offers white or black standard dice and I found I wanted to draw dice with other text on the faces so I wrote this package which draws the dice in TikZ and offers lots of customisation around what is displayed on the dice face, colour and size. 
+%
+%\section{Basic usage}
+%
+%\subsection{Standard dice}
+%
+%Standard dice faces are created using \verb|\dice{num}| where \(\textrm{num}\in\{1,2,3,4,5,6\}\). 
+%
+%For example
+%
+%\begin{verbatim}
+%\dice{1} \dice{2} \dice{3} \dice{4} \dice{5} \dice{6}\end{verbatim}
+%
+%produces output like this: 
+%
+%\centerline{\Huge \dice{1} \dice{2} \dice{3} \dice{4} \dice{5} \dice{6}}
+%
+%\subsection{Big dot dice}
+%
+%The command \verb|\bigdotdice| produces a dice face with one big dot in the centre.
+%
+%For example
+%
+%\begin{verbatim}
+%\bigdotdice\end{verbatim}
+%
+%produces output like this: 
+%
+%\centerline{\Huge \bigdotdice}
+%
+%\subsection{Text on dice}
+%
+%The command \verb|\textdice{text}| produces a dice face with \verb|text| on it. 
+%
+%For example
+%
+%\begin{verbatim}
+%\textdice{7}
+%\textdice{P}
+%\textdice{\(\aleph\)}\end{verbatim}
+%
+%produces output like this: 
+%
+%\centerline{\Huge \textdice{7} \textdice{P} \textdice{\(\aleph\)}}\bigskip
+%
+%Sometimes when drawing text on dice, there may be ambiguity about which way up a character goes. For this reason a second command \verb|\textdicebot{text}| is provided which draws a small line under \verb|text| (`bot' is to indicate `bottom line'). 
+%
+%For example
+%
+%\begin{verbatim}
+%\textdicebot{\(\cup\)}
+%\textdicebot{\(\cap\)}
+%\textdicebot{\sffamily W}\end{verbatim}
+%
+%produces output like this: 
+%
+%\centerline{\Huge \textdicebot{\(\cup\)} \textdicebot{\(\cap\)} \textdicebot{\sffamily W}}
+%
+%\subsection{Layout dice}
+%
+%A command \verb|\layoutdice{face1}{face2}{face3}{face4}{face5}{face6}| takes six inputs and places them on an expanded net of a dice cube. Important: this command takes six inputs in numerical order and displays those inputs where they would sit on a standard die with \setdicebaseline{0.35}\Largedice{1}\setdicebaseline{0.02} oriented at the top of the diagram. 
+%
+%For example
+%
+%\begin{verbatim}
+%\layoutdice{\dice{1}}{\dice{2}}{\dice{3}}{\dice{4}}{\dice{5}}{\dice{6}}
+%\layoutdice{\dice{6}}{\dice{5}}{\dice{3}}{\dice{4}}{\dice{2}}{\dice{1}}
+%\layoutdice{\textdice{A}}{\textdice{B}}{\textdice{C}}{\textdice{D}}{\textdice{E}}{\textdice{F}}\end{verbatim}
+%
+%produces output like this: 
+%
+%\centerline{\Huge \layoutdice{\dice{1}}{\dice{2}}{\dice{3}}{\dice{4}}{\dice{5}}{\dice{6}}
+%    \layoutdice{\dice{6}}{\dice{5}}{\dice{3}}{\dice{4}}{\dice{2}}{\dice{1}}
+%    \layoutdice{\textdice{A}}{\textdice{B}}{\textdice{C}}{\textdice{D}}{\textdice{E}}{\textdice{F}}}
+%
+%\subsection{Colour}
+%
+%By default, dice are black on white. This can be changed by passing a pair of colour names \verb|[background,foreground]| to any of the commands above. 
+%
+%For example
+%
+%\begin{verbatim}
+%\dice[black,white]{3}
+%\dice[violet,white]{5}
+%\dice[yellow,black]{6}
+%\bigdotdice[white,blue]
+%\textdice[gray,green]{\(\aleph\)}
+%\textdicebot[magenta,blue]{\sffamily W}\end{verbatim}
+%
+%produces output like this:
+%
+%\centerline{\Huge \dice[black,white]{3} \dice[violet,white]{5} \dice[yellow,black]{6} \bigdotdice[white,blue] \textdice[gray,green]{\(\aleph\)} \textdicebot[magenta,blue]{\sffamily W}}\bigskip
+%
+%Any defined colour name can be used, including ones you defined yourself. For example,
+%
+%\begin{verbatim}
+%\usepackage{xcolor}
+%\definecolor{airforceblue}{rgb}{0.36, 0.54, 0.66} % latexcolor.com
+%\definecolor{papayawhip}{rgb}{1.0, 0.94, 0.84} % latexcolor.com
+%\dice[airforceblue,papayawhip]{5}\end{verbatim}
+%
+%produces output like this:
+%
+%\centerline{\Huge \definecolor{airforceblue}{rgb}{0.36, 0.54, 0.66}
+%    \definecolor{papayawhip}{rgb}{1.0, 0.94, 0.84}
+%    \dice[airforceblue,papayawhip]{5}} 
+%
+%\newpage
+%
+%\subsection{Size}
+%
+%The dice size responds to the current font size, as demonstrated below. (Actually, most of the example output in this document is done within \verb|\Huge| for visibility.)\bigskip
+%
+%\begin{tabular}{rl}
+%    \verb|\tiny| & {\tiny\layoutdice{\dice{1}}{\dice{2}}{\dice{3}}{\dice{4}}{\dice{5}}{\dice{6}}
+%        \layoutdice{\dice[black,white]{1}}{\dice[black,white]{2}}{\dice[black,white]{3}}{\dice[black,white]{4}}{\dice[black,white]{5}}{\dice[black,white]{6}}
+%        \layoutdice{\dice[violet,white]{1}}{\dice[violet,white]{2}}{\dice[violet,white]{3}}{\dice[violet,white]{4}}{\dice[violet,white]{5}}{\dice[violet,white]{6}}
+%        \layoutdice{\bigdotdice[white,red]}{\bigdotdice[white,orange]}{\bigdotdice[white,yellow]}{\bigdotdice[white,green]}{\bigdotdice[white,blue]}{\bigdotdice[white,violet]}
+%        \layoutdice{\textdice[yellow,black]{1}}{\textdice[yellow,black]{\rotatebox{180}{2}}}{\textdice[yellow,black]{\rotatebox{90}{3}}}{\textdice[yellow,black]{4}}{\textdice[yellow,black]{5}}{\rotatebox{180}{\textdicebot[yellow,black]{6}}}
+%        \layoutdice{\textdice[white,blue]{\(\aleph\)}}{\rotatebox{90}{\textdicebot[white,blue]{8}}}{\textdice[white,blue]{\(\xi\)}}{\textdicebot[white,blue]{\(\infty\)}}{\rotatebox{-90}{\textdice[white,blue]{\(\mathbb{R}\)}}}{\textdicebot[white,blue]{\(\forall\)}}}\\
+%    \verb|\scriptsize| & {\scriptsize\layoutdice{\dice{1}}{\dice{2}}{\dice{3}}{\dice{4}}{\dice{5}}{\dice{6}}
+%        \layoutdice{\dice[black,white]{1}}{\dice[black,white]{2}}{\dice[black,white]{3}}{\dice[black,white]{4}}{\dice[black,white]{5}}{\dice[black,white]{6}}
+%        \layoutdice{\dice[violet,white]{1}}{\dice[violet,white]{2}}{\dice[violet,white]{3}}{\dice[violet,white]{4}}{\dice[violet,white]{5}}{\dice[violet,white]{6}}
+%        \layoutdice{\bigdotdice[white,red]}{\bigdotdice[white,orange]}{\bigdotdice[white,yellow]}{\bigdotdice[white,green]}{\bigdotdice[white,blue]}{\bigdotdice[white,violet]}
+%        \layoutdice{\textdice[yellow,black]{1}}{\textdice[yellow,black]{\rotatebox{180}{2}}}{\textdice[yellow,black]{\rotatebox{90}{3}}}{\textdice[yellow,black]{4}}{\textdice[yellow,black]{5}}{\rotatebox{180}{\textdicebot[yellow,black]{6}}}
+%        \layoutdice{\textdice[white,blue]{\(\aleph\)}}{\rotatebox{90}{\textdicebot[white,blue]{8}}}{\textdice[white,blue]{\(\xi\)}}{\textdicebot[white,blue]{\(\infty\)}}{\rotatebox{-90}{\textdice[white,blue]{\(\mathbb{R}\)}}}{\textdicebot[white,blue]{\(\forall\)}}}\\
+%    \verb|\footnotesize| & {\footnotesize\layoutdice{\dice{1}}{\dice{2}}{\dice{3}}{\dice{4}}{\dice{5}}{\dice{6}}
+%        \layoutdice{\dice[black,white]{1}}{\dice[black,white]{2}}{\dice[black,white]{3}}{\dice[black,white]{4}}{\dice[black,white]{5}}{\dice[black,white]{6}}
+%        \layoutdice{\dice[violet,white]{1}}{\dice[violet,white]{2}}{\dice[violet,white]{3}}{\dice[violet,white]{4}}{\dice[violet,white]{5}}{\dice[violet,white]{6}}
+%        \layoutdice{\bigdotdice[white,red]}{\bigdotdice[white,orange]}{\bigdotdice[white,yellow]}{\bigdotdice[white,green]}{\bigdotdice[white,blue]}{\bigdotdice[white,violet]}
+%        \layoutdice{\textdice[yellow,black]{1}}{\textdice[yellow,black]{\rotatebox{180}{2}}}{\textdice[yellow,black]{\rotatebox{90}{3}}}{\textdice[yellow,black]{4}}{\textdice[yellow,black]{5}}{\rotatebox{180}{\textdicebot[yellow,black]{6}}}
+%        \layoutdice{\textdice[white,blue]{\(\aleph\)}}{\rotatebox{90}{\textdicebot[white,blue]{8}}}{\textdice[white,blue]{\(\xi\)}}{\textdicebot[white,blue]{\(\infty\)}}{\rotatebox{-90}{\textdice[white,blue]{\(\mathbb{R}\)}}}{\textdicebot[white,blue]{\(\forall\)}}}\\
+%    \verb|\small| & {\small\layoutdice{\dice{1}}{\dice{2}}{\dice{3}}{\dice{4}}{\dice{5}}{\dice{6}}
+%        \layoutdice{\dice[black,white]{1}}{\dice[black,white]{2}}{\dice[black,white]{3}}{\dice[black,white]{4}}{\dice[black,white]{5}}{\dice[black,white]{6}}
+%        \layoutdice{\dice[violet,white]{1}}{\dice[violet,white]{2}}{\dice[violet,white]{3}}{\dice[violet,white]{4}}{\dice[violet,white]{5}}{\dice[violet,white]{6}}
+%        \layoutdice{\bigdotdice[white,red]}{\bigdotdice[white,orange]}{\bigdotdice[white,yellow]}{\bigdotdice[white,green]}{\bigdotdice[white,blue]}{\bigdotdice[white,violet]}
+%        \layoutdice{\textdice[yellow,black]{1}}{\textdice[yellow,black]{\rotatebox{180}{2}}}{\textdice[yellow,black]{\rotatebox{90}{3}}}{\textdice[yellow,black]{4}}{\textdice[yellow,black]{5}}{\rotatebox{180}{\textdicebot[yellow,black]{6}}}
+%        \layoutdice{\textdice[white,blue]{\(\aleph\)}}{\rotatebox{90}{\textdicebot[white,blue]{8}}}{\textdice[white,blue]{\(\xi\)}}{\textdicebot[white,blue]{\(\infty\)}}{\rotatebox{-90}{\textdice[white,blue]{\(\mathbb{R}\)}}}{\textdicebot[white,blue]{\(\forall\)}}}\\
+%    \verb|\normalsize| & {\normalsize\layoutdice{\dice{1}}{\dice{2}}{\dice{3}}{\dice{4}}{\dice{5}}{\dice{6}}
+%        \layoutdice{\dice[black,white]{1}}{\dice[black,white]{2}}{\dice[black,white]{3}}{\dice[black,white]{4}}{\dice[black,white]{5}}{\dice[black,white]{6}}
+%        \layoutdice{\dice[violet,white]{1}}{\dice[violet,white]{2}}{\dice[violet,white]{3}}{\dice[violet,white]{4}}{\dice[violet,white]{5}}{\dice[violet,white]{6}}
+%        \layoutdice{\bigdotdice[white,red]}{\bigdotdice[white,orange]}{\bigdotdice[white,yellow]}{\bigdotdice[white,green]}{\bigdotdice[white,blue]}{\bigdotdice[white,violet]}
+%        \layoutdice{\textdice[yellow,black]{1}}{\textdice[yellow,black]{\rotatebox{180}{2}}}{\textdice[yellow,black]{\rotatebox{90}{3}}}{\textdice[yellow,black]{4}}{\textdice[yellow,black]{5}}{\rotatebox{180}{\textdicebot[yellow,black]{6}}}
+%        \layoutdice{\textdice[white,blue]{\(\aleph\)}}{\rotatebox{90}{\textdicebot[white,blue]{8}}}{\textdice[white,blue]{\(\xi\)}}{\textdicebot[white,blue]{\(\infty\)}}{\rotatebox{-90}{\textdice[white,blue]{\(\mathbb{R}\)}}}{\textdicebot[white,blue]{\(\forall\)}}}\\
+%    \verb|\large| & {\large\layoutdice{\dice{1}}{\dice{2}}{\dice{3}}{\dice{4}}{\dice{5}}{\dice{6}}
+%        \layoutdice{\dice[black,white]{1}}{\dice[black,white]{2}}{\dice[black,white]{3}}{\dice[black,white]{4}}{\dice[black,white]{5}}{\dice[black,white]{6}}
+%        \layoutdice{\dice[violet,white]{1}}{\dice[violet,white]{2}}{\dice[violet,white]{3}}{\dice[violet,white]{4}}{\dice[violet,white]{5}}{\dice[violet,white]{6}}
+%        \layoutdice{\bigdotdice[white,red]}{\bigdotdice[white,orange]}{\bigdotdice[white,yellow]}{\bigdotdice[white,green]}{\bigdotdice[white,blue]}{\bigdotdice[white,violet]}
+%        \layoutdice{\textdice[yellow,black]{1}}{\textdice[yellow,black]{\rotatebox{180}{2}}}{\textdice[yellow,black]{\rotatebox{90}{3}}}{\textdice[yellow,black]{4}}{\textdice[yellow,black]{5}}{\rotatebox{180}{\textdicebot[yellow,black]{6}}}
+%        \layoutdice{\textdice[white,blue]{\(\aleph\)}}{\rotatebox{90}{\textdicebot[white,blue]{8}}}{\textdice[white,blue]{\(\xi\)}}{\textdicebot[white,blue]{\(\infty\)}}{\rotatebox{-90}{\textdice[white,blue]{\(\mathbb{R}\)}}}{\textdicebot[white,blue]{\(\forall\)}}}\\
+%    \verb|\Large| & {\Large\layoutdice{\dice{1}}{\dice{2}}{\dice{3}}{\dice{4}}{\dice{5}}{\dice{6}}
+%        \layoutdice{\dice[black,white]{1}}{\dice[black,white]{2}}{\dice[black,white]{3}}{\dice[black,white]{4}}{\dice[black,white]{5}}{\dice[black,white]{6}}
+%        \layoutdice{\dice[violet,white]{1}}{\dice[violet,white]{2}}{\dice[violet,white]{3}}{\dice[violet,white]{4}}{\dice[violet,white]{5}}{\dice[violet,white]{6}}
+%        \layoutdice{\bigdotdice[white,red]}{\bigdotdice[white,orange]}{\bigdotdice[white,yellow]}{\bigdotdice[white,green]}{\bigdotdice[white,blue]}{\bigdotdice[white,violet]}
+%        \layoutdice{\textdice[yellow,black]{1}}{\textdice[yellow,black]{\rotatebox{180}{2}}}{\textdice[yellow,black]{\rotatebox{90}{3}}}{\textdice[yellow,black]{4}}{\textdice[yellow,black]{5}}{\rotatebox{180}{\textdicebot[yellow,black]{6}}}
+%        \layoutdice{\textdice[white,blue]{\(\aleph\)}}{\rotatebox{90}{\textdicebot[white,blue]{8}}}{\textdice[white,blue]{\(\xi\)}}{\textdicebot[white,blue]{\(\infty\)}}{\rotatebox{-90}{\textdice[white,blue]{\(\mathbb{R}\)}}}{\textdicebot[white,blue]{\(\forall\)}}}\\
+%    \verb|\LARGE| & {\LARGE\layoutdice{\dice{1}}{\dice{2}}{\dice{3}}{\dice{4}}{\dice{5}}{\dice{6}}
+%        \layoutdice{\dice[black,white]{1}}{\dice[black,white]{2}}{\dice[black,white]{3}}{\dice[black,white]{4}}{\dice[black,white]{5}}{\dice[black,white]{6}}
+%        \layoutdice{\dice[violet,white]{1}}{\dice[violet,white]{2}}{\dice[violet,white]{3}}{\dice[violet,white]{4}}{\dice[violet,white]{5}}{\dice[violet,white]{6}}
+%        \layoutdice{\bigdotdice[white,red]}{\bigdotdice[white,orange]}{\bigdotdice[white,yellow]}{\bigdotdice[white,green]}{\bigdotdice[white,blue]}{\bigdotdice[white,violet]}
+%        \layoutdice{\textdice[yellow,black]{1}}{\textdice[yellow,black]{\rotatebox{180}{2}}}{\textdice[yellow,black]{\rotatebox{90}{3}}}{\textdice[yellow,black]{4}}{\textdice[yellow,black]{5}}{\rotatebox{180}{\textdicebot[yellow,black]{6}}}
+%        \layoutdice{\textdice[white,blue]{\(\aleph\)}}{\rotatebox{90}{\textdicebot[white,blue]{8}}}{\textdice[white,blue]{\(\xi\)}}{\textdicebot[white,blue]{\(\infty\)}}{\rotatebox{-90}{\textdice[white,blue]{\(\mathbb{R}\)}}}{\textdicebot[white,blue]{\(\forall\)}}}\\
+%    \verb|\huge| & {\huge\layoutdice{\dice{1}}{\dice{2}}{\dice{3}}{\dice{4}}{\dice{5}}{\dice{6}}
+%        \layoutdice{\dice[black,white]{1}}{\dice[black,white]{2}}{\dice[black,white]{3}}{\dice[black,white]{4}}{\dice[black,white]{5}}{\dice[black,white]{6}}
+%        \layoutdice{\dice[violet,white]{1}}{\dice[violet,white]{2}}{\dice[violet,white]{3}}{\dice[violet,white]{4}}{\dice[violet,white]{5}}{\dice[violet,white]{6}}
+%        \layoutdice{\bigdotdice[white,red]}{\bigdotdice[white,orange]}{\bigdotdice[white,yellow]}{\bigdotdice[white,green]}{\bigdotdice[white,blue]}{\bigdotdice[white,violet]}
+%        \layoutdice{\textdice[yellow,black]{1}}{\textdice[yellow,black]{\rotatebox{180}{2}}}{\textdice[yellow,black]{\rotatebox{90}{3}}}{\textdice[yellow,black]{4}}{\textdice[yellow,black]{5}}{\rotatebox{180}{\textdicebot[yellow,black]{6}}}
+%        \layoutdice{\textdice[white,blue]{\(\aleph\)}}{\rotatebox{90}{\textdicebot[white,blue]{8}}}{\textdice[white,blue]{\(\xi\)}}{\textdicebot[white,blue]{\(\infty\)}}{\rotatebox{-90}{\textdice[white,blue]{\(\mathbb{R}\)}}}{\textdicebot[white,blue]{\(\forall\)}}}\\
+%    \verb|\Huge| & {\Huge\layoutdice{\dice{1}}{\dice{2}}{\dice{3}}{\dice{4}}{\dice{5}}{\dice{6}}
+%        \layoutdice{\dice[black,white]{1}}{\dice[black,white]{2}}{\dice[black,white]{3}}{\dice[black,white]{4}}{\dice[black,white]{5}}{\dice[black,white]{6}}
+%        \layoutdice{\dice[violet,white]{1}}{\dice[violet,white]{2}}{\dice[violet,white]{3}}{\dice[violet,white]{4}}{\dice[violet,white]{5}}{\dice[violet,white]{6}}
+%        \layoutdice{\bigdotdice[white,red]}{\bigdotdice[white,orange]}{\bigdotdice[white,yellow]}{\bigdotdice[white,green]}{\bigdotdice[white,blue]}{\bigdotdice[white,violet]}
+%        \layoutdice{\textdice[yellow,black]{1}}{\textdice[yellow,black]{\rotatebox{180}{2}}}{\textdice[yellow,black]{\rotatebox{90}{3}}}{\textdice[yellow,black]{4}}{\textdice[yellow,black]{5}}{\rotatebox{180}{\textdicebot[yellow,black]{6}}}
+%        \layoutdice{\textdice[white,blue]{\(\aleph\)}}{\rotatebox{90}{\textdicebot[white,blue]{8}}}{\textdice[white,blue]{\(\xi\)}}{\textdicebot[white,blue]{\(\infty\)}}{\rotatebox{-90}{\textdice[white,blue]{\(\mathbb{R}\)}}}{\textdicebot[white,blue]{\(\forall\)}}}\\
+%\end{tabular}\bigskip
+%
+% More detail on customising sizes is given in the advanced usage section \ref{sec:advancedsize}.
+%
+%\newpage
+%
+%For convenience, a series of commands are defined for each dice type based on the standard LaTeX size names. While e.g. \verb|\dice{num}| uses the current font size, e.g. \verb|\Largedice{num}| is always \verb|\Large|.
+%
+%\begin{center}
+%    \begin{tabular}{rl}
+%        \textbf{Command} & \textbf{Example output}\\
+%        \verb|\tinydice| & \tinydice{5}\\
+%        \verb|\scriptsizedice| & \scriptsizedice{5}\\
+%        \verb|\footnotesizedice| & \footnotesizedice{5}\\
+%        \verb|\smalldice| & \smalldice{5}\\
+%        \verb|\normalsizedice| & \normalsizedice{5}\\
+%        \verb|\largedice| & \largedice{5}\\
+%        \verb|\Largedice| & \Largedice{5}\\
+%        \verb|\LARGEdice| & \LARGEdice{5}\\
+%        \verb|\hugedice| & \hugedice{5}\\
+%        \verb|\Hugedice| & \Hugedice{5}\\
+%        \verb|\tinybigdotdice| & \tinybigdotdice\\
+%        \verb|\scriptsizebigdotdice| & \scriptsizebigdotdice\\
+%        \verb|\footnotesizebigdotdice| & \footnotesizebigdotdice\\
+%        \verb|\smallbigdotdice| & \smallbigdotdice\\
+%        \verb|\normalsizebigdotdice| & \normalsizebigdotdice\\
+%        \verb|\largebigdotdice| & \largebigdotdice\\
+%        \verb|\Largebigdotdice| & \Largebigdotdice\\
+%        \verb|\LARGEbigdotdice| & \LARGEbigdotdice\\
+%        \verb|\hugebigdotdice| & \hugebigdotdice\\
+%        \verb|\Hugebigdotdice| & \Hugebigdotdice\\
+%        \verb|\tinytextdice| & \tinytextdice{Q}\\
+%        \verb|\scriptsizetextdice| & \scriptsizetextdice{Q}\\
+%        \verb|\footnotesizetextdice| & \footnotesizetextdice{Q}\\
+%        \verb|\smalltextdice| & \smalltextdice{Q}\\
+%        \verb|\normalsizetextdice| & \normalsizetextdice{Q}\\
+%        \verb|\largetextdice| & \largetextdice{Q}\\
+%        \verb|\Largetextdice| & \Largetextdice{Q}\\
+%        \verb|\LARGEtextdice| & \LARGEtextdice{Q}\\
+%        \verb|\hugetextdice| & \hugetextdice{Q}\\
+%        \verb|\Hugetextdice| & \Hugetextdice{Q}\\
+%        \verb|\tinytextdicebot| & \tinytextdicebot{\sffamily d}\\
+%        \verb|\scriptsizetextdicebot| & \scriptsizetextdicebot{\sffamily d}\\
+%        \verb|\footnotesizetextdicebot| & \footnotesizetextdicebot{\sffamily d}\\
+%        \verb|\smalltextdicebot| & \smalltextdicebot{\sffamily d}\\
+%        \verb|\normalsizetextdicebot| & \normalsizetextdicebot{\sffamily d}\\
+%        \verb|\largetextdicebot| & \largetextdicebot{\sffamily d}\\
+%        \verb|\Largetextdicebot| & \Largetextdicebot{\sffamily d}\\
+%        \verb|\LARGEtextdicebot| & \LARGEtextdicebot{\sffamily d}\\
+%        \verb|\hugetextdicebot| & \hugetextdicebot{\sffamily d}\\
+%        \verb|\Hugetextdicebot| & \Hugetextdicebot{\sffamily d}\\
+%    \end{tabular}
+%\end{center}
+%
+%\section{Advanced usage notes}
+%
+%\subsection{Dependencies}
+%
+%customdice uses TikZ and etoolbox.
+%
+%\subsection{Rotated text}
+%
+%You can rotate what is displayed on the face using \verb|\rotatebox{}| from the \verb|rotating| package. 
+%
+%For example
+%
+%\begin{verbatim}
+%\usepackage{rotating}
+%\textdice[yellow,black]{\rotatebox{180}{2}}
+%\textdice[white,blue]{\rotatebox{90}{\(\mathbb{R}\)}}\end{verbatim}
+%
+%produces output like this: 
+%
+%\centerline{\Huge \textdice[yellow,black]{\rotatebox{180}{2}} \textdice[white,blue]{\rotatebox{90}{\(\mathbb{R}\)}}}
+%
+%Sometimes you might need to rotate the whole box, for example when using \verb|\dicetextbot|. 
+%
+%For example compare
+%
+%\begin{verbatim}
+%\usepackage{rotating}
+%\textdicebot{\rotatebox{180}{\sffamily d}}
+%
+%\rotatebox{180}{\textdicebot{\sffamily d}}\end{verbatim}
+%
+%which produces output like this: 
+%
+%\centerline{\Huge \textdicebot{\rotatebox{180}{\sffamily d}}}
+%
+%\centerline{\Huge \rotatebox{180}{\textdicebot{\sffamily d}}}
+%
+%The first has rotated the `d' but not the underline, so it appears to be a `P'.
+%
+%\subsection{Size}\label{sec:advancedsize}
+%
+%\subsubsection{Size and inline display}
+%
+%The size of the die face is 1.65ex square, which is about the height of capital letters in whatever font size is currently being used. This should mean inline use works well, as demonstrated below.
+%
+%\begin{tabular}{rll}
+%    \verb|\tiny| & {\tiny O\dice{1}E} & {\sffamily\tiny O\dice{1}E}\\
+%    \verb|\scriptsize| & {\scriptsize T\dice{2}O} & {\sffamily\scriptsize T\dice{2}O}\\
+%    \verb|\footnotesize| & {\footnotesize THR\dice{3}E} & {\sffamily\footnotesize THR\dice{3}E}\\
+%    \verb|\small| & {\small F\dice{4}UR} & {\sffamily\small F\dice{4}UR}\\
+%    \verb|\normalsize| & {\normalsize F\dice{5}VE} & {\sffamily\normalsize F\dice{5}VE}\\
+%    \verb|\large| & {\large S\dice{6}X} & {\sffamily\large S\dice{6}X}\\
+%    \verb|\Large| & {\Large O\dice{1}E} & {\sffamily\Large O\dice{1}E}\\
+%    \verb|\LARGE| & {\LARGE T\dice{2}O} & {\sffamily\LARGE T\dice{2}O}\\
+%    \verb|\huge| & {\huge THR\dice{3}E} & {\sffamily\huge THR\dice{3}E}\\
+%    \verb|\Huge| & {\Huge F\dice{4}UR} & {\sffamily\Huge F\dice{4}UR}\\
+%\end{tabular}\bigskip
+%
+%You may find that you prefer your dice larger than the surrounding text, like this \Largetextdice{A} is done using \verb|\Largetextdice{A}|. The dice are designed to sit on the baseline of the current text size via a parameter called \verb|\customdicebaseline| which is by default \verb|0.02| and is passed to TikZ in \verb|\begin{tikzpicture}[baseline=\customdicebaseline ex]|. If you enlarge the size of the dice to be bigger than the surrounding text you may find they appear to sit above the line. If you prefer them to be centred vertically with the surrounding text you will need to adjust this parameter (by trial and error). Do this using \verb|\setdicebaseline{num}|. For example, setting \verb|\setdicebaseline{0.35}| should make \verb|\Largetextdice{A}| appear centred vertically on the line of text again, like this \setdicebaseline{0.35}\Largetextdice{A} now does.
+%
+%\setdicebaseline{0.02}
+%
+%\subsubsection{Changing the basic size}
+%
+%The size of the die face is 1.65ex square. All other sizes within the die face are defined in relation to this basic unit, and you can change it and them using \verb|\setdicefacesize{num}| where \verb|num| is a number that is interpreted as a number of ex. 
+%
+%For example, 
+%
+%\begin{verbatim}
+%\Huge
+%\dice{5} 
+%\setdicefacesize{3}
+%\dice{5} 
+%\setdicefacesize{10}
+%\dice{5} 
+%\setdicefacesize{20}
+%\dice{5}\end{verbatim}
+%
+%produces output like this: 
+%
+%\centerline{\Huge \dice{5} %
+%    \setdicefacesize{3}%
+%    \dice{5} %
+%    \setdicefacesize{10}%
+%    \dice{5} %
+%    \setdicefacesize{20}%
+%    \dice{5}}
+%
+%\setdicefacesize{1.65}
+%
+%\newpage
+%
+%\subsubsection{Changing all the sizes}
+%
+%This is a list of all the sizes used by the package, set by the two commands \verb|\setdicebaseline| and \verb|\setdicefacesize|. 
+%
+%\noindent\begin{tabularx}{\linewidth}{lXlll}
+%    \textbf{Parameter} & \textbf{Description} & \textbf{Units} & \textbf{Set by} & \textbf{Default}\\\hline
+%    \verb|\customdicebaseline| & Controls where the dice sits in relation to surrounding text. & ex & \verb|\setdicebaseline| & 0.02\\\hline
+%    \verb|\customdicefacesize| & Side length of the dice face square. & ex & \verb|\setdicefacesize| & 1.65\\\hline
+%    \verb|\customdicehalfway| & Half way across the dice face, distance from the edge to the centre dot on the standard dice face. Also the centre of the text in \verb|\dicetext| and \verb|\dicetextbot|. & ex & \verb|\setdicefacesize| & 0.825\\\hline
+%    \verb|\customdicelower| & Distance from the edge to the `lower' dots (at the bottom or the left of the standard dice face). & ex & \verb|\setdicefacesize| & 0.4\\\hline
+%    \verb|\customdiceupper| & Distance from the edge to the `upper' dots (at the top or the right of the standard dice face). & ex & \verb|\setdicefacesize| & 1.25\\\hline
+%    \verb|\customdicedotsize| & Size of the standard dice dots. & ex & \verb|\setdicefacesize| & 0.12\\\hline
+%    \verb|\customdicebigdotsize| & Size of the bigdot dice dots. & ex & \verb|\setdicefacesize| & 0.45\\\hline
+%    \verb|\customdicecornerrounding| & Controls the rounding on the corners. & ex & \verb|\setdicefacesize| & 0.2\\\hline
+%    \verb|\customdiceborderthickness| & Thickness of the dice face border.  & ex & \verb|\setdicefacesize| & 0.1\\\hline
+%    \verb|\customdicetextscale| & Scaling of the text on the dice faces in \verb|\dicetext| and \verb|\dicetextbot|. & none & \verb|\setdicefacesize| & 0.6\\
+%\end{tabularx}
+%
+%Note that \verb|\textdicebot| draws an underline of thickness \verb|\customdiceborderthickness| from 
+%\verb|(\customdicelower,\customdicecornerrounding)| to \verb|(\customdiceupper,\customdicecornerrounding)|. 
+%
+%These parameters are all commands, so if you have a good reason to adjust one of them you can do so using \verb|\renewcommand|, for example \verb|\renewcommand{\customdicehalfway}{1.1}| changes {\Large\textdice{a}} to \renewcommand{\customdicehalfway}{1.1}{\Large\textdice{a}}\renewcommand{\customdicehalfway}{0.825}. Note that calling \verb|\setdicebaseline|/\verb|\setdicefacesize| will reset the relevant commands. 
+%
+%
+%\subsubsection{Text doesn't fit?}
+%
+%There is nothing to stop text running off the side of the die. For example \verb|\textdice{Hello}| just puts `Hello' centred at \verb|(\customdicehalfway,\customdicehalfway)|, like this:
+%
+%\centerline{\Huge\textdice{Hello}}
+%
+%In some circumstances, it may be possible to squeeze some overflowing text onto the die face by adjusting \verb|\customdicetextscale|. For example, \verb|\renewcommand{\customdicetextscale}{0.4}| converts \setdicebaseline{0.35} \Largetextdice{101} to \renewcommand{\customdicetextscale}{0.4}\Largetextdice{101}.
+%\setdicebaseline{0.02}
+%
+%It is possible to overdo this and make the text illegible, of course, like the `Hello World' here: {\renewcommand{\customdicetextscale}{0.1}\textdice{Hello World}}.
+%
+%\renewcommand{\customdicetextscale}{0.6}
+%
+%Note that calling \verb|\setdicefacesize| will reset \verb|\customdicetextscale| relative to the new \verb|\customdicefacesize|. 
+%
+%\subsection{Arbitrary drawing on dice faces}
+%
+%The commands \verb|\dice|, \verb|\bigdotdice|, \verb|\textdice| and \verb|\textdicedot| all start an environment called \verb|customdiceenv| and do some drawing on it. \verb|customdiceenv| is really a \verb|tikzpicture| with baseline set to \verb|\customdicebaseline ex| and the dice face outline drawn from \verb|(0ex,0ex)| to \\
+%\verb|(\customdicefacesize ex,\customdicefacesize ex)|. You can call \verb|customdiceenv| directly and within this environment, any other TikZ commands should work. 
+%
+%For example
+%
+%\begin{verbatim}
+%\usetikzlibrary{shapes.geometric}
+%\begin{customdiceenv}
+%\node[isosceles triangle,draw,inner sep=0.2ex] at (0.65ex,0.825ex) {};
+%\end{customdiceenv}\end{verbatim}
+%
+%produces output like this: 
+%
+%\centerline{\Huge \begin{customdiceenv}
+%    \node[isosceles triangle,draw,inner sep=0.2ex] at (0.65ex,0.825ex) {};
+%\end{customdiceenv}}\bigskip
+%
+%\verb|customdiceenv| has one optional parameter which is a pair of colours, defaulting to \verb|white,black|. Note that what you draw isn't automatically coloured, though within \verb|customdiceenv| you can access the foreground colour as \verb|\customdicefg| and the background colour as \verb|\customdicebg|. 
+%
+%You can also access other package parameters, such as the different sizes. To help stay within the confines of the dice face, it might be helpful to make use of \verb|\customdiceupper|, \verb|\customdicelower| and \verb|\customdicehalfway|.
+%
+%For example
+%
+%\begin{verbatim}
+%\begin{customdiceenv}[pink,violet]
+%\draw[very thick,->,\customdicefg] (\customdiceupper ex,\customdicelower ex) -- 
+%(\customdicelower ex,\customdiceupper ex);
+%\end{customdiceenv}\end{verbatim}
+%
+%produces output like this: 
+%
+%\centerline{\Huge \begin{customdiceenv}[pink,violet]
+%    \draw[very thick,->,\customdicefg] (\customdiceupper ex,\customdicelower ex) -- (\customdicelower ex,\customdiceupper ex);
+%\end{customdiceenv}}
+%
+%\section{Is it `die' or `dice'?}
+%
+%Gosh, I don't know! Technically singular is `die' and plural is `dice', but common usage has typically drifted far from this and language evolves. I'm not sure I've used these terms correctly or consistently in this document. All commands use `dice'.
+%\iffalse
+%<*documentation>
+\documentclass[a4paper]{article}
+\usepackage{a4wide}
+\usepackage{customdice}
+\usepackage{rotating}
+\usepackage{amsfonts}
+\usepackage{ltablex}
+\usepackage{doc}
+\usepackage{hyperref}
+\usetikzlibrary{shapes.geometric}
+\begin{document}
+\DocInput{customdice.dtx}
+\end{document}
+%</documentation>
+%\fi
+%\iffalse
+%<*customdice>
+\ProvidesPackage{customdice}[2022/07/31 customdice 1.0]
+
+\RequirePackage{tikz}
+\RequirePackage{etoolbox}
+
+\makeatletter
+\@ifundefined{customdicecoldefault}{}
+{\PackageWarning{customdice}{command `customdicecoldefault' already defined}}
+\@ifundefined{customdicebg}{}
+{\PackageWarning{customdice}{command `customdicebg' already defined}}
+\@ifundefined{customdicefg}{}
+{\PackageWarning{customdice}{command `customdicefg' already defined}}
+\@ifundefined{customdicebaseline}{}
+{\PackageWarning{customdice}{command `customdicebaseline' already defined}}
+\@ifundefined{setdicebaseline}{}
+{\PackageWarning{customdice}{command `setdicebaseline' already defined}}
+\@ifundefined{customdicefacesize}{}
+{\PackageWarning{customdice}{command `customdicefacesize' already defined}}
+\@ifundefined{customdicehalfway}{}
+{\PackageWarning{customdice}{command `customdicehalfway' already defined}}
+\@ifundefined{customdicelower}{}
+{\PackageWarning{customdice}{command `customdicelower' already defined}}
+\@ifundefined{customdiceupper}{}
+{\PackageWarning{customdice}{command `customdiceupper' already defined}}
+\@ifundefined{customdicedotsize}{}
+{\PackageWarning{customdice}{command `customdicedotsize' already defined}}
+\@ifundefined{customdicebigdotsize}{}
+{\PackageWarning{customdice}{command `customdicebigdotsize' already defined}}
+\@ifundefined{customdicecornerrounding}{}
+{\PackageWarning{customdice}{command `customdicecornerrounding' already defined}}
+\@ifundefined{customdiceborderthickness}{}
+{\PackageWarning{customdice}{command `customdiceborderthickness' already defined}}
+\@ifundefined{customdicetextscale}{}
+{\PackageWarning{customdice}{command `customdicetextscale' already defined}}
+\@ifundefined{setdicefacesize}{}
+{\PackageWarning{customdice}{command `setdicefacesize' already defined}}
+\@ifundefined{dice}{}
+{\PackageWarning{customdice}{command `dice' already defined}}
+\@ifundefined{bigdotdice}{}
+{\PackageWarning{customdice}{command `bigdotdice' already defined}}
+\@ifundefined{textdice}{}
+{\PackageWarning{customdice}{command `textdice' already defined}}
+\@ifundefined{textdicebot}{}
+{\PackageWarning{customdice}{command `textdicebot' already defined}}
+\@ifundefined{layoutdice}{}
+{\PackageWarning{customdice}{command `layoutdice' already defined}}
+\@ifundefined{tinydice}{}
+{\PackageWarning{customdice}{command `tinydice' already defined}}
+\@ifundefined{scriptsizedice}{}
+{\PackageWarning{customdice}{command `scriptsizedice' already defined}}
+\@ifundefined{footnotesizedice}{}
+{\PackageWarning{customdice}{command `footnotesizedice' already defined}}
+\@ifundefined{smalldice}{}
+{\PackageWarning{customdice}{command `smalldice' already defined}}
+\@ifundefined{normalsizedice}{}
+{\PackageWarning{customdice}{command `normalsizedice' already defined}}
+\@ifundefined{largedice}{}
+{\PackageWarning{customdice}{command `largedice' already defined}}
+\@ifundefined{Largedice}{}
+{\PackageWarning{customdice}{command `Largedice' already defined}}
+\@ifundefined{LARGEdice}{}
+{\PackageWarning{customdice}{command `LARGEdice' already defined}}
+\@ifundefined{hugedice}{}
+{\PackageWarning{customdice}{command `hugedice' already defined}}
+\@ifundefined{Hugedice}{}
+{\PackageWarning{customdice}{command `Hugedice' already defined}}
+\@ifundefined{tinybigdotdice}{}
+{\PackageWarning{customdice}{command `tinybigdotdice' already defined}}
+\@ifundefined{scriptsizebigdotdice}{}
+{\PackageWarning{customdice}{command `scriptsizebigdotdice' already defined}}
+\@ifundefined{footnotesizebigdotdice}{}
+{\PackageWarning{customdice}{command `footnotesizebigdotdice' already defined}}
+\@ifundefined{smallbigdotdice}{}
+{\PackageWarning{customdice}{command `smallbigdotdice' already defined}}
+\@ifundefined{normalsizebigdotdice}{}
+{\PackageWarning{customdice}{command `normalsizebigdotdice' already defined}}
+\@ifundefined{largebigdotdice}{}
+{\PackageWarning{customdice}{command `largebigdotdice' already defined}}
+\@ifundefined{Largebigdotdice}{}
+{\PackageWarning{customdice}{command `Largebigdotdice' already defined}}
+\@ifundefined{LARGEbigdotdice}{}
+{\PackageWarning{customdice}{command `LARGEbigdotdice' already defined}}
+\@ifundefined{hugebigdotdice}{}
+{\PackageWarning{customdice}{command `hugebigdotdice' already defined}}
+\@ifundefined{Hugebigdotdice}{}
+{\PackageWarning{customdice}{command `Hugebigdotdice' already defined}}
+\@ifundefined{tinytextdice}{}
+{\PackageWarning{customdice}{command `tinytextdice' already defined}}
+\@ifundefined{scriptsizetextdice}{}
+{\PackageWarning{customdice}{command `scriptsizetextdice' already defined}}
+\@ifundefined{footnotesizetextdice}{}
+{\PackageWarning{customdice}{command `footnotesizetextdice' already defined}}
+\@ifundefined{smalltextdice}{}
+{\PackageWarning{customdice}{command `smalltextdice' already defined}}
+\@ifundefined{normalsizetextdice}{}
+{\PackageWarning{customdice}{command `normalsizetextdice' already defined}}
+\@ifundefined{largetextdice}{}
+{\PackageWarning{customdice}{command `largetextdice' already defined}}
+\@ifundefined{Largetextdice}{}
+{\PackageWarning{customdice}{command `Largetextdice' already defined}}
+\@ifundefined{LARGEtextdice}{}
+{\PackageWarning{customdice}{command `LARGEtextdice' already defined}}
+\@ifundefined{hugetextdice}{}
+{\PackageWarning{customdice}{command `hugetextdice' already defined}}
+\@ifundefined{Hugetextdice}{}
+{\PackageWarning{customdice}{command `Hugetextdice' already defined}}
+\@ifundefined{tinytextdicebot}{}
+{\PackageWarning{customdice}{command `tinytextdicebot' already defined}}
+\@ifundefined{scriptsizetextdicebot}{}
+{\PackageWarning{customdice}{command `scriptsizetextdicebot' already defined}}
+\@ifundefined{footnotesizetextdicebot}{}
+{\PackageWarning{customdice}{command `footnotesizetextdicebot' already defined}}
+\@ifundefined{smalltextdicebot}{}
+{\PackageWarning{customdice}{command `smalltextdicebot' already defined}}
+\@ifundefined{normalsizetextdicebot}{}
+{\PackageWarning{customdice}{command `normalsizetextdicebot' already defined}}
+\@ifundefined{largetextdicebot}{}
+{\PackageWarning{customdice}{command `largetextdicebot' already defined}}
+\@ifundefined{Largetextdicebot}{}
+{\PackageWarning{customdice}{command `Largetextdicebot' already defined}}
+\@ifundefined{LARGEtextdicebot}{}
+{\PackageWarning{customdice}{command `LARGEtextdicebot' already defined}}
+\@ifundefined{hugetextdicebot}{}
+{\PackageWarning{customdice}{command `hugetextdicebot' already defined}}
+\@ifundefined{Hugetextdicebot}{}
+{\PackageWarning{customdice}{command `Hugetextdicebot' already defined}}
+\makeatother
+
+% sizes
+\newcommand{\customdicecoldefault}{f40fc2340eb940fc8a170db0f81d7139} % using a UUID so we are extremely unlikely to clash with any user-specified colour name
+\global\let\customdicebg\customdicecoldefault
+\global\let\customdicefg\customdicecoldefault
+\newcommand{\customdicebaseline}{0.02}
+\newcommand{\setdicebaseline}[1]{%
+    \renewcommand{\customdicebaseline}{#1}%
+}
+\newcommand{\customdicefacesize}{1.65}
+\newcommand{\customdicehalfway}{0.825}
+\newcommand{\customdicelower}{0.4}
+\newcommand{\customdiceupper}{1.25}
+\newcommand{\customdicedotsize}{0.12}
+\newcommand{\customdicebigdotsize}{0.45}
+\newcommand{\customdicecornerrounding}{0.2}
+\newcommand{\customdiceborderthickness}{0.1}
+\newcommand{\customdicetextscale}{0.6}
+\newcommand{\setdicefacesize}[1]{%
+    \renewcommand{\customdicefacesize}{#1}%
+    \pgfmathsetmacro{\customdicehalfway}{#1/2}%
+    \pgfmathsetmacro{\customdicelower}{#1*0.425/1.65}%
+    \pgfmathsetmacro{\customdiceupper}{#1*1.25/1.65}%
+    \pgfmathsetmacro{\customdicedotsize}{#1*0.12/1.65}%
+    \pgfmathsetmacro{\customdicebigdotsize}{#1*0.45/1.65}%
+    \pgfmathsetmacro{\customdicecornerrounding}{#1*0.2/1.65}%
+    \pgfmathsetmacro{\customdiceborderthickness}{#1*0.1/1.65}%
+    \pgfmathsetmacro{\customdicetextscale}{#1*0.6/1.65}%
+}
+
+% main dice environment
+\newenvironment{customdiceenv}[1][white,black]{%
+    \foreach \colour in {#1}{%
+        \ifdefequal{\customdicebg}{\customdicecoldefault}{\global\let\customdicebg\colour}{\global\let\customdicefg\colour}%
+    }%
+    \begin{tikzpicture}[baseline=\customdicebaseline ex]
+    \draw[rounded corners=\customdicecornerrounding ex,darkgray,fill=\customdicebg,line width=\customdiceborderthickness ex] (0ex,0ex) rectangle (\customdicefacesize ex,\customdicefacesize ex);
+}{\end{tikzpicture}%
+    \global\let\customdicebg\customdicecoldefault%
+    \global\let\customdicefg\customdicecoldefault%
+}
+
+% \dice draws standard dice
+\newcommand{\dice}[2][white,black]{%
+    \begin{customdiceenv}[#1]
+        \ifnumequal{#2}{1}{
+            \node[circle,fill=\customdicefg,inner sep=\customdicedotsize ex] at (\customdicehalfway ex,\customdicehalfway ex) {};
+        }{\ifnumequal{#2}{2}{
+            \node[circle,fill=\customdicefg,inner sep=\customdicedotsize ex] at (\customdicelower ex,\customdiceupper ex) {};
+            \node[circle,fill=\customdicefg,inner sep=\customdicedotsize ex] at (\customdiceupper ex,\customdicelower ex) {};
+        }{\ifnumequal{#2}{3}{
+            \node[circle,fill=\customdicefg,inner sep=\customdicedotsize ex] at (\customdicelower ex,\customdicelower ex) {};
+            \node[circle,fill=\customdicefg,inner sep=\customdicedotsize ex] at (\customdicehalfway ex,\customdicehalfway ex) {};
+            \node[circle,fill=\customdicefg,inner sep=\customdicedotsize ex] at (\customdiceupper ex,\customdiceupper ex) {};
+        }{\ifnumequal{#2}{4}{
+            \node[circle,fill=\customdicefg,inner sep=\customdicedotsize ex] at (\customdicelower ex,\customdicelower ex) {};
+            \node[circle,fill=\customdicefg,inner sep=\customdicedotsize ex] at (\customdicelower ex,\customdiceupper ex) {};
+            \node[circle,fill=\customdicefg,inner sep=\customdicedotsize ex] at (\customdiceupper ex,\customdicelower ex) {};
+            \node[circle,fill=\customdicefg,inner sep=\customdicedotsize ex] at (\customdiceupper ex,\customdiceupper ex) {};
+        }{\ifnumequal{#2}{5}{
+            \node[circle,fill=\customdicefg,inner sep=\customdicedotsize ex] at (\customdicelower ex,\customdicelower ex) {};
+            \node[circle,fill=\customdicefg,inner sep=\customdicedotsize ex] at (\customdicelower ex,\customdiceupper ex) {};
+            \node[circle,fill=\customdicefg,inner sep=\customdicedotsize ex] at (\customdicehalfway ex,\customdicehalfway ex) {};
+            \node[circle,fill=\customdicefg,inner sep=\customdicedotsize ex] at (\customdiceupper ex,\customdicelower ex) {};
+            \node[circle,fill=\customdicefg,inner sep=\customdicedotsize ex] at (\customdiceupper ex,\customdiceupper ex) {};
+        }{\ifnumequal{#2}{6}{
+            \node[circle,fill=\customdicefg,inner sep=\customdicedotsize ex] at (\customdicelower ex,\customdicelower ex) {};
+            \node[circle,fill=\customdicefg,inner sep=\customdicedotsize ex] at (\customdicelower ex,\customdicehalfway ex) {};
+            \node[circle,fill=\customdicefg,inner sep=\customdicedotsize ex] at (\customdicelower ex,\customdiceupper ex) {};
+            \node[circle,fill=\customdicefg,inner sep=\customdicedotsize ex] at (\customdiceupper ex,\customdicelower ex) {};
+            \node[circle,fill=\customdicefg,inner sep=\customdicedotsize ex] at (\customdiceupper ex,\customdicehalfway ex) {};
+            \node[circle,fill=\customdicefg,inner sep=\customdicedotsize ex] at (\customdiceupper ex,\customdiceupper ex) {};
+        }{}}}}}}
+    \end{customdiceenv}%
+}
+
+% \bigdotdice draws dice with a big dot
+\newcommand{\bigdotdice}[1][white,black]{%
+    \begin{customdiceenv}[#1]
+        \node[circle,fill=\customdicefg,inner sep=\customdicebigdotsize ex] at (\customdicehalfway ex,\customdicehalfway ex) {};
+    \end{customdiceenv}%
+}
+
+% \textdice puts text on a dice face
+\newcommand{\textdice}[2][white,black]{%
+    \begin{customdiceenv}[#1]
+        \node[\customdicefg,inner sep=0,scale=\customdicetextscale] at (\customdicehalfway ex,\customdicehalfway ex) {#2};
+    \end{customdiceenv}%
+}
+
+% \textdicebot puts underlined text on a dice face
+\newcommand{\textdicebot}[2][white,black]{%
+    \begin{customdiceenv}[#1]
+        \node[\customdicefg,inner sep=0,scale=\customdicetextscale] at (\customdicehalfway ex,\customdicehalfway ex) {#2};
+        \draw[line width=\customdiceborderthickness ex,\customdicefg] (\customdicelower ex,\customdicecornerrounding ex) --(\customdiceupper ex,\customdicecornerrounding ex);
+    \end{customdiceenv}%
+}
+
+% draws a dice net
+\newcommand{\layoutdice}[6]{%
+    \setlength{\tabcolsep}{0pt}%
+    \renewcommand{\arraystretch}{0}%
+    \begin{tabular}{ccc}
+        ~ & #1 & ~\\
+        #4 & #2 & #3\\
+        ~ & #6 & ~\\
+        ~ & #5 & ~\\
+    \end{tabular}%
+}
+
+% for convenience, passes \sizecommand as {\size\command}
+\newcommand{\tinydice}[2][white,black]{%
+    {\tiny\dice[#1]{#2}}
+}
+\newcommand{\scriptsizedice}[2][white,black]{%
+    {\scriptsize\dice[#1]{#2}}
+}
+\newcommand{\footnotesizedice}[2][white,black]{%
+    {\footnotesize\dice[#1]{#2}}
+}
+\newcommand{\smalldice}[2][white,black]{%
+    {\small\dice[#1]{#2}}
+}
+\newcommand{\normalsizedice}[2][white,black]{%
+    {\normalsize\dice[#1]{#2}}
+}
+\newcommand{\largedice}[2][white,black]{%
+    {\large\dice[#1]{#2}}
+}
+\newcommand{\Largedice}[2][white,black]{%
+    {\Large\dice[#1]{#2}}
+}
+\newcommand{\LARGEdice}[2][white,black]{%
+    {\LARGE\dice[#1]{#2}}
+}
+\newcommand{\hugedice}[2][white,black]{%
+    {\huge\dice[#1]{#2}}
+}
+\newcommand{\Hugedice}[2][white,black]{%
+    {\Huge\dice[#1]{#2}}
+}
+\newcommand{\tinybigdotdice}[1][white,black]{%
+    {\tiny\bigdotdice[#1]}
+}
+\newcommand{\scriptsizebigdotdice}[1][white,black]{%
+    {\scriptsize\bigdotdice[#1]}
+}
+\newcommand{\footnotesizebigdotdice}[1][white,black]{%
+    {\footnotesize\bigdotdice[#1]}
+}
+\newcommand{\smallbigdotdice}[1][white,black]{%
+    {\small\bigdotdice[#1]}
+}
+\newcommand{\normalsizebigdotdice}[1][white,black]{%
+    {\normalsize\bigdotdice[#1]}
+}
+\newcommand{\largebigdotdice}[1][white,black]{%
+    {\large\bigdotdice[#1]}
+}
+\newcommand{\LARGEbigdotdice}[1][white,black]{%
+    {\LARGE\bigdotdice[#1]}
+}
+\newcommand{\Largebigdotdice}[1][white,black]{%
+    {\Large\bigdotdice[#1]}
+}
+\newcommand{\hugebigdotdice}[1][white,black]{%
+    {\huge\bigdotdice[#1]}
+}
+\newcommand{\Hugebigdotdice}[1][white,black]{%
+    {\Huge\bigdotdice[#1]}
+}
+\newcommand{\tinytextdice}[2][white,black]{%
+    {\tiny\textdice[#1]{#2}}
+}
+\newcommand{\scriptsizetextdice}[2][white,black]{%
+    {\scriptsize\textdice[#1]{#2}}
+}
+\newcommand{\footnotesizetextdice}[2][white,black]{%
+    {\footnotesize\textdice[#1]{#2}}
+}
+\newcommand{\smalltextdice}[2][white,black]{%
+    {\small\textdice[#1]{#2}}
+}
+\newcommand{\normalsizetextdice}[2][white,black]{%
+    {\normalsize\textdice[#1]{#2}}
+}
+\newcommand{\largetextdice}[2][white,black]{%
+    {\large\textdice[#1]{#2}}
+}
+\newcommand{\Largetextdice}[2][white,black]{%
+    {\Large\textdice[#1]{#2}}
+}
+\newcommand{\LARGEtextdice}[2][white,black]{%
+    {\LARGE\textdice[#1]{#2}}
+}
+\newcommand{\hugetextdice}[2][white,black]{%
+    {\huge\textdice[#1]{#2}}
+}
+\newcommand{\Hugetextdice}[2][white,black]{%
+    {\Huge\textdice[#1]{#2}}
+}
+\newcommand{\tinytextdicebot}[2][white,black]{%
+    {\tiny\textdicebot[#1]{#2}}
+}
+\newcommand{\scriptsizetextdicebot}[2][white,black]{%
+    {\scriptsize\textdicebot[#1]{#2}}
+}
+\newcommand{\footnotesizetextdicebot}[2][white,black]{%
+    {\footnotesize\textdicebot[#1]{#2}}
+}
+\newcommand{\smalltextdicebot}[2][white,black]{%
+    {\small\textdicebot[#1]{#2}}
+}
+\newcommand{\normalsizetextdicebot}[2][white,black]{%
+    {\normalsize\textdicebot[#1]{#2}}
+}
+\newcommand{\largetextdicebot}[2][white,black]{%
+    {\large\textdicebot[#1]{#2}}
+}
+\newcommand{\Largetextdicebot}[2][white,black]{%
+    {\Large\textdicebot[#1]{#2}}
+}
+\newcommand{\LARGEtextdicebot}[2][white,black]{%
+    {\LARGE\textdicebot[#1]{#2}}
+}
+\newcommand{\hugetextdicebot}[2][white,black]{%
+    {\huge\textdicebot[#1]{#2}}
+}
+\newcommand{\Hugetextdicebot}[2][white,black]{%
+    {\Huge\textdicebot[#1]{#2}}
+}
+%</customdice>
+%\fi
