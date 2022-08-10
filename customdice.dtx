@@ -3,7 +3,7 @@
 %
 %The package is licenced under Creative Commons Attribution-ShareAlike 4.0 International (CC BY-SA 4.0). To view a copy of this license, visit http://creativecommons.org/licenses/by-sa/4.0/
 %\fi
-%\title{customdice v1.0}
+%\title{customdice v1.1}
 %\author{Peter Rowlett}
 %\maketitle
 %    
@@ -43,6 +43,21 @@
 %produces output like this: 
 %
 %\centerline{\Huge \dice{1} \dice{2} \dice{3} \dice{4} \dice{5} \dice{6}}
+%
+%Apparently there are occasions where people desire dice faces as if from a six-sided cube that show 7, 8 or 9 dots. This is incorporated into \verb|\dice| also. 
+%
+%For example
+%
+%\begin{verbatim}
+%\dice{7} \dice{8} \dice{9}\end{verbatim}
+%
+%produces output like this: 
+%
+%\centerline{\Huge \dice{7} \dice{8} \dice{9}}
+%
+%Also, inputting \verb|\dice{0}| produces a blank face, like this:
+%
+%\centerline{\Huge \dice{0}}
 %
 %\subsection{Big dot dice}
 %
@@ -386,6 +401,25 @@
 %
 %Note that calling \verb|\setdicefacesize| will reset \verb|\customdicetextscale| relative to the new \verb|\customdicefacesize|. 
 %
+%\subsection{Border colour}
+%
+%The background and foreground colours can be set by passing parameters to the commands as outlined above. The border of the dice face is set globally to \verb|darkgray|, with the assumption that this will be fine with any colour combination. It is customisable though. You can set the global dice face border colour to any colour name using \verb|\setdicefaceoutlinecol{name}| and restore the default using \verb|\defaultdicefaceoutlinecol|. 
+%
+%For example, 
+%
+%\begin{verbatim}
+%\setdicefaceoutlinecol{red}\dice{5}
+%\setdicefaceoutlinecol{orange}\dice{5}
+%\setdicefaceoutlinecol{yellow}\dice{5}
+%\setdicefaceoutlinecol{green}\dice{5}
+%\setdicefaceoutlinecol{blue}\dice{5}
+%\setdicefaceoutlinecol{violet}\dice{5}
+%\defaultdicefaceoutlinecol\dice{5}\end{verbatim}
+%
+%produces output like this: 
+%
+%\centerline{\Huge \setdicefaceoutlinecol{red}\dice{5} \setdicefaceoutlinecol{orange}\dice{5} \setdicefaceoutlinecol{yellow}\dice{5} \setdicefaceoutlinecol{green}\dice{5} \setdicefaceoutlinecol{blue}\dice{5} \setdicefaceoutlinecol{violet}\dice{5} \defaultdicefaceoutlinecol\dice{5}}
+%
 %\subsection{Arbitrary drawing on dice faces}
 %
 %The commands \verb|\dice|, \verb|\bigdotdice|, \verb|\textdice| and \verb|\textdicedot| all start an environment called \verb|customdiceenv| and do some drawing on it. \verb|customdiceenv| is really a \verb|tikzpicture| with baseline set to \verb|\customdicebaseline ex| and the dice face outline drawn from \verb|(0ex,0ex)| to \\
@@ -570,12 +604,26 @@
 {\PackageWarning{customdice}{command `hugetextdicebot' already defined}}
 \@ifundefined{Hugetextdicebot}{}
 {\PackageWarning{customdice}{command `Hugetextdicebot' already defined}}
+\@ifundefined{dicefaceoutlinecol}{}
+{\PackageWarning{customdice}{command `dicefaceoutlinecol' already defined}}
+\@ifundefined{setdicefaceoutlinecol}{}
+{\PackageWarning{customdice}{command `setdicefaceoutlinecol' already defined}}
+\@ifundefined{defaultdicefaceoutlinecol}{}
+{\PackageWarning{customdice}{command `defaultdicefaceoutlinecol' already defined}}
 \makeatother
 
-% sizes
+% colours
 \newcommand{\customdicecoldefault}{f40fc2340eb940fc8a170db0f81d7139} % using a UUID so we are extremely unlikely to clash with any user-specified colour name
 \global\let\customdicebg\customdicecoldefault
 \global\let\customdicefg\customdicecoldefault
+\newcommand{\dicefaceoutlinecol}{darkgray}
+\newcommand{\setdicefaceoutlinecol}[1]{%
+    \renewcommand{\dicefaceoutlinecol}{#1}%
+}
+\newcommand{\defaultdicefaceoutlinecol}{%
+    \renewcommand{\dicefaceoutlinecol}{darkgray}%
+}
+% sizes
 \newcommand{\customdicebaseline}{0.02}
 \newcommand{\setdicebaseline}[1]{%
     \renewcommand{\customdicebaseline}{#1}%
@@ -607,7 +655,7 @@
         \ifdefequal{\customdicebg}{\customdicecoldefault}{\global\let\customdicebg\colour}{\global\let\customdicefg\colour}%
     }%
     \begin{tikzpicture}[baseline=\customdicebaseline ex]
-    \draw[rounded corners=\customdicecornerrounding ex,darkgray,fill=\customdicebg,line width=\customdiceborderthickness ex] (0ex,0ex) rectangle (\customdicefacesize ex,\customdicefacesize ex);
+    \draw[rounded corners=\customdicecornerrounding ex,\dicefaceoutlinecol,fill=\customdicebg,line width=\customdiceborderthickness ex] (0ex,0ex) rectangle (\customdicefacesize ex,\customdicefacesize ex);
 }{\end{tikzpicture}%
     \global\let\customdicebg\customdicecoldefault%
     \global\let\customdicefg\customdicecoldefault%
@@ -643,9 +691,38 @@
             \node[circle,fill=\customdicefg,inner sep=\customdicedotsize ex] at (\customdiceupper ex,\customdicelower ex) {};
             \node[circle,fill=\customdicefg,inner sep=\customdicedotsize ex] at (\customdiceupper ex,\customdicehalfway ex) {};
             \node[circle,fill=\customdicefg,inner sep=\customdicedotsize ex] at (\customdiceupper ex,\customdiceupper ex) {};
-        }{}}}}}}
+        }{\ifnumequal{#2}{7}{
+            \node[circle,fill=\customdicefg,inner sep=\customdicedotsize ex] at (\customdicelower ex,\customdicelower ex) {};
+            \node[circle,fill=\customdicefg,inner sep=\customdicedotsize ex] at (\customdicelower ex,\customdicehalfway ex) {};
+            \node[circle,fill=\customdicefg,inner sep=\customdicedotsize ex] at (\customdicelower ex,\customdiceupper ex) {};
+            \node[circle,fill=\customdicefg,inner sep=\customdicedotsize ex] at (\customdicehalfway ex,\customdicehalfway ex) {};
+            \node[circle,fill=\customdicefg,inner sep=\customdicedotsize ex] at (\customdiceupper ex,\customdicelower ex) {};
+            \node[circle,fill=\customdicefg,inner sep=\customdicedotsize ex] at (\customdiceupper ex,\customdicehalfway ex) {};
+            \node[circle,fill=\customdicefg,inner sep=\customdicedotsize ex] at (\customdiceupper ex,\customdiceupper ex) {};
+        }{\ifnumequal{#2}{8}{
+            \node[circle,fill=\customdicefg,inner sep=\customdicedotsize ex] at (\customdicelower ex,\customdicelower ex) {};
+            \node[circle,fill=\customdicefg,inner sep=\customdicedotsize ex] at (\customdicelower ex,\customdicehalfway ex) {};
+            \node[circle,fill=\customdicefg,inner sep=\customdicedotsize ex] at (\customdicelower ex,\customdiceupper ex) {};
+            \node[circle,fill=\customdicefg,inner sep=\customdicedotsize ex] at (\customdicehalfway ex,\customdicelower ex) {};
+            \node[circle,fill=\customdicefg,inner sep=\customdicedotsize ex] at (\customdicehalfway ex,\customdiceupper ex) {};
+            \node[circle,fill=\customdicefg,inner sep=\customdicedotsize ex] at (\customdiceupper ex,\customdicelower ex) {};
+            \node[circle,fill=\customdicefg,inner sep=\customdicedotsize ex] at (\customdiceupper ex,\customdicehalfway ex) {};
+            \node[circle,fill=\customdicefg,inner sep=\customdicedotsize ex] at (\customdiceupper ex,\customdiceupper ex) {};
+        }{\ifnumequal{#2}{9}{
+            \node[circle,fill=\customdicefg,inner sep=\customdicedotsize ex] at (\customdicelower ex,\customdicelower ex) {};
+            \node[circle,fill=\customdicefg,inner sep=\customdicedotsize ex] at (\customdicelower ex,\customdicehalfway ex) {};
+            \node[circle,fill=\customdicefg,inner sep=\customdicedotsize ex] at (\customdicelower ex,\customdiceupper ex) {};
+            \node[circle,fill=\customdicefg,inner sep=\customdicedotsize ex] at (\customdicehalfway ex,\customdicelower ex) {};
+            \node[circle,fill=\customdicefg,inner sep=\customdicedotsize ex] at (\customdicehalfway ex,\customdicehalfway ex) {};
+            \node[circle,fill=\customdicefg,inner sep=\customdicedotsize ex] at (\customdicehalfway ex,\customdiceupper ex) {};
+            \node[circle,fill=\customdicefg,inner sep=\customdicedotsize ex] at (\customdiceupper ex,\customdicelower ex) {};
+            \node[circle,fill=\customdicefg,inner sep=\customdicedotsize ex] at (\customdiceupper ex,\customdicehalfway ex) {};
+            \node[circle,fill=\customdicefg,inner sep=\customdicedotsize ex] at (\customdiceupper ex,\customdiceupper ex) {};
+        }{}}}}}}}}}
     \end{customdiceenv}%
 }
+
+
 
 % \bigdotdice draws dice with a big dot
 \newcommand{\bigdotdice}[1][white,black]{%
@@ -683,124 +760,124 @@
 
 % for convenience, passes \sizecommand as {\size\command}
 \newcommand{\tinydice}[2][white,black]{%
-    {\tiny\dice[#1]{#2}}
+    {\tiny\dice[#1]{#2}}%
 }
 \newcommand{\scriptsizedice}[2][white,black]{%
-    {\scriptsize\dice[#1]{#2}}
+    {\scriptsize\dice[#1]{#2}}%
 }
 \newcommand{\footnotesizedice}[2][white,black]{%
-    {\footnotesize\dice[#1]{#2}}
+    {\footnotesize\dice[#1]{#2}}%
 }
 \newcommand{\smalldice}[2][white,black]{%
-    {\small\dice[#1]{#2}}
+    {\small\dice[#1]{#2}}%
 }
 \newcommand{\normalsizedice}[2][white,black]{%
-    {\normalsize\dice[#1]{#2}}
+    {\normalsize\dice[#1]{#2}}%
 }
 \newcommand{\largedice}[2][white,black]{%
-    {\large\dice[#1]{#2}}
+    {\large\dice[#1]{#2}}%
 }
 \newcommand{\Largedice}[2][white,black]{%
-    {\Large\dice[#1]{#2}}
+    {\Large\dice[#1]{#2}}%
 }
 \newcommand{\LARGEdice}[2][white,black]{%
-    {\LARGE\dice[#1]{#2}}
+    {\LARGE\dice[#1]{#2}}%
 }
 \newcommand{\hugedice}[2][white,black]{%
-    {\huge\dice[#1]{#2}}
+    {\huge\dice[#1]{#2}}%
 }
 \newcommand{\Hugedice}[2][white,black]{%
-    {\Huge\dice[#1]{#2}}
+    {\Huge\dice[#1]{#2}}%
 }
 \newcommand{\tinybigdotdice}[1][white,black]{%
-    {\tiny\bigdotdice[#1]}
+    {\tiny\bigdotdice[#1]}%
 }
 \newcommand{\scriptsizebigdotdice}[1][white,black]{%
-    {\scriptsize\bigdotdice[#1]}
+    {\scriptsize\bigdotdice[#1]}%
 }
 \newcommand{\footnotesizebigdotdice}[1][white,black]{%
-    {\footnotesize\bigdotdice[#1]}
+    {\footnotesize\bigdotdice[#1]}%
 }
 \newcommand{\smallbigdotdice}[1][white,black]{%
-    {\small\bigdotdice[#1]}
+    {\small\bigdotdice[#1]}%
 }
 \newcommand{\normalsizebigdotdice}[1][white,black]{%
-    {\normalsize\bigdotdice[#1]}
+    {\normalsize\bigdotdice[#1]}%
 }
 \newcommand{\largebigdotdice}[1][white,black]{%
-    {\large\bigdotdice[#1]}
+    {\large\bigdotdice[#1]}%
 }
 \newcommand{\LARGEbigdotdice}[1][white,black]{%
-    {\LARGE\bigdotdice[#1]}
+    {\LARGE\bigdotdice[#1]}%
 }
 \newcommand{\Largebigdotdice}[1][white,black]{%
-    {\Large\bigdotdice[#1]}
+    {\Large\bigdotdice[#1]}%
 }
 \newcommand{\hugebigdotdice}[1][white,black]{%
-    {\huge\bigdotdice[#1]}
+    {\huge\bigdotdice[#1]}%
 }
 \newcommand{\Hugebigdotdice}[1][white,black]{%
-    {\Huge\bigdotdice[#1]}
+    {\Huge\bigdotdice[#1]}%
 }
 \newcommand{\tinytextdice}[2][white,black]{%
-    {\tiny\textdice[#1]{#2}}
+    {\tiny\textdice[#1]{#2}}%
 }
 \newcommand{\scriptsizetextdice}[2][white,black]{%
-    {\scriptsize\textdice[#1]{#2}}
+    {\scriptsize\textdice[#1]{#2}}%
 }
 \newcommand{\footnotesizetextdice}[2][white,black]{%
-    {\footnotesize\textdice[#1]{#2}}
+    {\footnotesize\textdice[#1]{#2}}%
 }
 \newcommand{\smalltextdice}[2][white,black]{%
-    {\small\textdice[#1]{#2}}
+    {\small\textdice[#1]{#2}}%
 }
 \newcommand{\normalsizetextdice}[2][white,black]{%
-    {\normalsize\textdice[#1]{#2}}
+    {\normalsize\textdice[#1]{#2}}%
 }
 \newcommand{\largetextdice}[2][white,black]{%
-    {\large\textdice[#1]{#2}}
+    {\large\textdice[#1]{#2}}%
 }
 \newcommand{\Largetextdice}[2][white,black]{%
-    {\Large\textdice[#1]{#2}}
+    {\Large\textdice[#1]{#2}}%
 }
 \newcommand{\LARGEtextdice}[2][white,black]{%
-    {\LARGE\textdice[#1]{#2}}
+    {\LARGE\textdice[#1]{#2}}%
 }
 \newcommand{\hugetextdice}[2][white,black]{%
-    {\huge\textdice[#1]{#2}}
+    {\huge\textdice[#1]{#2}}%
 }
 \newcommand{\Hugetextdice}[2][white,black]{%
-    {\Huge\textdice[#1]{#2}}
+    {\Huge\textdice[#1]{#2}}%
 }
 \newcommand{\tinytextdicebot}[2][white,black]{%
-    {\tiny\textdicebot[#1]{#2}}
+    {\tiny\textdicebot[#1]{#2}}%
 }
 \newcommand{\scriptsizetextdicebot}[2][white,black]{%
-    {\scriptsize\textdicebot[#1]{#2}}
+    {\scriptsize\textdicebot[#1]{#2}}%
 }
 \newcommand{\footnotesizetextdicebot}[2][white,black]{%
-    {\footnotesize\textdicebot[#1]{#2}}
+    {\footnotesize\textdicebot[#1]{#2}}%
 }
 \newcommand{\smalltextdicebot}[2][white,black]{%
-    {\small\textdicebot[#1]{#2}}
+    {\small\textdicebot[#1]{#2}}%
 }
 \newcommand{\normalsizetextdicebot}[2][white,black]{%
-    {\normalsize\textdicebot[#1]{#2}}
+    {\normalsize\textdicebot[#1]{#2}}%
 }
 \newcommand{\largetextdicebot}[2][white,black]{%
-    {\large\textdicebot[#1]{#2}}
+    {\large\textdicebot[#1]{#2}}%
 }
 \newcommand{\Largetextdicebot}[2][white,black]{%
-    {\Large\textdicebot[#1]{#2}}
+    {\Large\textdicebot[#1]{#2}}%
 }
 \newcommand{\LARGEtextdicebot}[2][white,black]{%
-    {\LARGE\textdicebot[#1]{#2}}
+    {\LARGE\textdicebot[#1]{#2}}%
 }
 \newcommand{\hugetextdicebot}[2][white,black]{%
-    {\huge\textdicebot[#1]{#2}}
+    {\huge\textdicebot[#1]{#2}}%
 }
 \newcommand{\Hugetextdicebot}[2][white,black]{%
-    {\Huge\textdicebot[#1]{#2}}
+    {\Huge\textdicebot[#1]{#2}}%
 }
 %</customdice>
 %\fi
